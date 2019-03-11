@@ -60,4 +60,7 @@ model.wv.most_similar("fat")
 model.wv.most_similar("meat")
 #%%
 model.wv.most_similar("corporate")
+#%%
+model.wv.most_similar("burned")
+
 
