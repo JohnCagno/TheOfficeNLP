@@ -106,3 +106,69 @@ word_freqs <- data.frame(term = names(term_frequency), num = term_frequency)
 # Create a wordcloud for the values in word_freqs
 wordcloud(word_freqs$term, word_freqs$num,min.freq=5,random.order = FALSE, max.words=3000,colors=brewer.pal(8, "Paired"))
 
+
+#bigrams
+
+temp=office
+temp=temp %>% 
+  select(Line) %>% 
+  unnest_tokens(bigram,Line,token="ngrams",n=2)
+
+library(kableExtra)
+
+kable(head(temp,10),"html") %>% 
+  kable_styling(bootstrap_options="condensed",position="center")
+
+
+tempseperated=temp %>% separate(bigram,c("word1","word2"),sep=" ")
+
+tempfiltered=tempseperated %>% 
+  filter(!(word1 %in% stop_words$word)) %>% 
+  filter(!(word2 %in% stop_words$word))
+
+temp=tempfiltered %>% 
+  unite(bigramwords,word1,word2,sep=" ") %>% 
+  group_by(bigramwords) %>% 
+  tally()%>% 
+  ungroup() %>% 
+  arrange(desc(n))  %>% 
+  mutate(bigramwords=factor(bigramwords,levels=rev(unique(bigramwords))))
+
+temp
+wordcloud(temp$bigramwords, temp$n, min.freq=2,random.order = FALSE, max.words=3000,colors=brewer.pal(8, "Paired"))
+
+#trigrams
+
+temp=office
+temp=temp %>% 
+  select(Line) %>% 
+  unnest_tokens(trigram,Line,token="ngrams",n=3)
+
+library(kableExtra)
+
+kable(head(temp,10),"html") %>% 
+  kable_styling(bootstrap_options="condensed",position="center")
+
+
+tempseperated=temp %>% 
+  separate(trigram,c("word1","word2","word3"),sep=" ")
+
+tempfiltered=tempseperated %>% 
+  filter(!(word1 %in% stop_words$word)) %>% 
+  filter(!(word2 %in% stop_words$word)) %>% 
+  filter(!(word3 %in% stop_words$word))
+
+temp=tempfiltered %>% 
+  unite(trigramwords,word1,word2,word3,sep=" ") %>% 
+  group_by(trigramwords) %>% 
+  tally()%>% 
+  ungroup() %>% 
+  arrange(desc(n))  %>% 
+  mutate(trigramwords=factor(trigramwords,levels=rev(unique(trigramwords))))
+
+temp %>% top_n(20)
+
+wordcloud(temp$trigramwords, temp$n, min.freq=1,random.order = FALSE, max.words=3000,colors=brewer.pal(8, "Paired"))
+
+
+
